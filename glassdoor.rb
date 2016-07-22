@@ -3,11 +3,6 @@ require 'HTTParty'
 require 'json'
 
 class GlassDoor
-
-  def initialize
-
-  end
-
   def make_url(company_name, location, ip)
     base_url = 'http://api.glassdoor.com/api/api.htm?v=1&format=json'
     partner_id = "&t.p=#{ENV['GDPARTNER']}"
@@ -20,16 +15,13 @@ class GlassDoor
     url = base_url + partner_id + partner_key + action + q + ip + user_agent + l
   end
 
-  def make_request(url)
-    result = HTTParty.get(url)
+  def get_employer(url)
+    result = HTTParty.get(url)['response']['employers'][0]
   end
 
   def overall_rating(company)
-    make_request(url)['response']['employers'][0]['overallRating']
+    company['overallRating']
   end
-
-
-
 end
 
 g = GlassDoor.new

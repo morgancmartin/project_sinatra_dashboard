@@ -2,6 +2,7 @@ require 'sinatra'
 require './dice_scraper.rb'
 require 'httparty'
 require 'pry-byebug'
+require './glassdoor'
 
 enable :sessions
 
@@ -19,6 +20,14 @@ helpers do
     end
     session['loc_data']
   end
+
+  def add_company_rating(result_array)
+    gd = GlassDoor.new
+    result_array.each do |company_array|
+      employer_obj = gd.get_employer(company_array[1])
+      company_array << gd.overall_rating(employer_obj)
+    end
+  end
 end
 
 get '/' do
@@ -31,5 +40,6 @@ post '/' do
   location = get_loc_data('40.138.174.92') if location.empty?
   scraper = DiceScraper.new(job_title, location)
   result_array = scraper.create_listings_array.compact
+
   erb :results, locals: {:result_array => result_array, :location => location}
 end
